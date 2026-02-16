@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הזמנת שתייה</title>
+<style>
+body{font-family:Arial;direction:rtl;background:linear-gradient(135deg,#4facfe,#00f2fe);margin:0;padding:20px}
+.container{max-width:500px;margin:auto;background:white;padding:25px;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+h1{text-align:center}
+.drink{display:flex;justify-content:space-between;padding:10px;background:#f5f5f5;margin-bottom:10px;border-radius:8px}
+button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
+.add-btn{background:#28a745;color:white}
+.submit-btn{width:100%;margin-top:15px;background:#007bff;color:white;padding:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🥤 הזמנת שתייה</h1>
+
+<div class="drink">
+<span>קולה - 8₪</span>
+<button class="add-btn" onclick="addToOrder('קולה',8)">הוסף</button>
+</div>
+
+<div class="drink">
+<span>ספרייט - 8₪</span>
+<button class="add-btn" onclick="addToOrder('ספרייט',8)">הוסף</button>
+</div>
+
+<div class="drink">
+<span>מים - 5₪</span>
+<button class="add-btn" onclick="addToOrder('מים',5)">הוסף</button>
+</div>
+
+<div class="drink">
+<span>מיץ תפוזים - 10₪</span>
+<button class="add-btn" onclick="addToOrder('מיץ תפוזים',10)">הוסף</button>
+</div>
+
+<h3>ההזמנה שלך:</h3>
+<ul id="orderList"></ul>
+<strong>סה״כ: <span id="total">0</span> ₪</strong>
+<button class="submit-btn" onclick="submitOrder()">שלח הזמנה</button>
+</div>
+
+<script>
+let total=0;
+function addToOrder(name,price){
+let li=document.createElement("li");
+li.textContent=name+" - "+price+"₪";
+document.getElementById("orderList").appendChild(li);
+total+=price;
+document.getElementById("total").textContent=total;
+}
+function submitOrder(){
+if(total===0){alert("לא בחרת שתייה עדיין 🙂");return;}
+alert("✅ ההזמנה נשלחה! סה״כ לתשלום: "+total+"₪");
+}
+</script>
+</body>
+</html>
