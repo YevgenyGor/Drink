@@ -3,60 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>הזמנת שתייה</title>
+<title>המבורגריה - הזמנת שתייה</title>
+
 <style>
-body{font-family:Arial;direction:rtl;background:linear-gradient(135deg,#4facfe,#00f2fe);margin:0;padding:20px}
-.container{max-width:500px;margin:auto;background:white;padding:25px;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
-h1{text-align:center}
-.drink{display:flex;justify-content:space-between;padding:10px;background:#f5f5f5;margin-bottom:10px;border-radius:8px}
-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:bold}
-.add-btn{background:#28a745;color:white}
-.submit-btn{width:100%;margin-top:15px;background:#007bff;color:white;padding:10px}
+body{
+    margin:0;
+    font-family:Arial;
+    direction:rtl;
+    background:#f0f2f5;
+}
+.app{
+    max-width:420px;
+    margin:auto;
+    background:white;
+    min-height:100vh;
+    padding:15px;
+}
+header{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    padding:10px;
+}
+.drink{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f9f9f9;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+.controls button{
+    padding:5px 10px;
+    border:none;
+    border-radius:6px;
+    font-size:16px;
+    cursor:pointer;
+}
+.plus{background:#28a745;color:white}
+.minus{background:#dc3545;color:white}
+.cart{
+    margin-top:20px;
+    border-top:1px solid #ddd;
+    padding-top:10px;
+}
+.cart-item{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:6px;
+}
+.total{
+    font-size:18px;
+    font-weight:bold;
+    margin-top:10px;
+}
+.submit{
+    width:100%;
+    margin-top:15px;
+    padding:12px;
+    font-size:18px;
+    background:#000;
+    color:white;
+    border:none;
+    border-radius:10px;
+}
 </style>
 </head>
+
 <body>
-<div class="container">
-<h1>🥤 הזמנת שתייה</h1>
+<div class="app">
+<header>🍔 שתייה - המבורגריה</header>
 
-<div class="drink">
-<span>קולה - 8₪</span>
-<button class="add-btn" onclick="addToOrder('קולה',8)">הוסף</button>
+<div id="menu"></div>
+
+<div class="cart">
+<h3>🛒 סל הזמנה</h3>
+<div id="cart"></div>
+<div class="total">סה״כ: <span id="total">0</span> ₪</div>
+<button class="submit" onclick="submitOrder()">שלח הזמנה</button>
 </div>
-
-<div class="drink">
-<span>ספרייט - 8₪</span>
-<button class="add-btn" onclick="addToOrder('ספרייט',8)">הוסף</button>
-</div>
-
-<div class="drink">
-<span>מים - 5₪</span>
-<button class="add-btn" onclick="addToOrder('מים',5)">הוסף</button>
-</div>
-
-<div class="drink">
-<span>מיץ תפוזים - 10₪</span>
-<button class="add-btn" onclick="addToOrder('מיץ תפוזים',10)">הוסף</button>
-</div>
-
-<h3>ההזמנה שלך:</h3>
-<ul id="orderList"></ul>
-<strong>סה״כ: <span id="total">0</span> ₪</strong>
-<button class="submit-btn" onclick="submitOrder()">שלח הזמנה</button>
 </div>
 
 <script>
-let total=0;
-function addToOrder(name,price){
-let li=document.createElement("li");
-li.textContent=name+" - "+price+"₪";
-document.getElementById("orderList").appendChild(li);
-total+=price;
-document.getElementById("total").textContent=total;
+const drinks = [
+    {name:"קולה", price:10},
+    {name:"קולה זירו", price:10},
+    {name:"פאנטה", price:10},
+    {name:"ספרייט", price:10},
+    {name:"ספרייט זירו", price:10},
+    {name:"אייס טי", price:12},
+    {name:"מים מינרליים", price:8}
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+function renderMenu(){
+    const menu=document.getElementById("menu");
+    menu.innerHTML="";
+    drinks.forEach(d=>{
+        const div=document.createElement("div");
+        div.className="drink";
+        div.innerHTML=`
+            <span>${d.name} - ${d.price}₪</span>
+            <div class="controls">
+                <button class="plus" onclick="add('${d.name}',${d.price})">+</button>
+                <button class="minus" onclick="remove('${d.name}')">-</button>
+            </div>`;
+        menu.appendChild(div);
+    });
 }
+
+function add(name,price){
+    cart[name]=(cart[name]||0)+1;
+    save();
+}
+
+function remove(name){
+    if(cart[name]){
+        cart[name]--;
+        if(cart[name]<=0) delete cart[name];
+        save();
+    }
+}
+
+function save(){
+    localStorage.setItem("cart",JSON.stringify(cart));
+    renderCart();
+}
+
+function renderCart(){
+    const cartDiv=document.getElementById("cart");
+    cartDiv.innerHTML="";
+    let total=0;
+
+    for(let name in cart){
+        const drink=drinks.find(d=>d.name===name);
+        const qty=cart[name];
+        const sum=qty*drink.price;
+        total+=sum;
+
+        const div=document.createElement("div");
+        div.className="cart-item";
+        div.textContent=`${name} x${qty} = ${sum}₪`;
+        cartDiv.appendChild(div);
+    }
+
+    document.getElementById("total").textContent=total;
+}
+
 function submitOrder(){
-if(total===0){alert("לא בחרת שתייה עדיין 🙂");return;}
-alert("✅ ההזמנה נשלחה! סה״כ לתשלום: "+total+"₪");
+    if(Object.keys(cart).length===0){
+        alert("לא בחרת שתייה 🙂");
+        return;
+    }
+    alert("✅ ההזמנה נשלחה למטבח!");
+    cart={};
+    save();
 }
+
+renderMenu();
+renderCart();
 </script>
 </body>
 </html>
